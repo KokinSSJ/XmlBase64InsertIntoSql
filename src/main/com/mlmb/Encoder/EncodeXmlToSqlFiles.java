@@ -1,4 +1,4 @@
-package com.mlmb.XBSConverter;
+package com.mlmb.Encoder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

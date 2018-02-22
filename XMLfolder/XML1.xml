@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="iso-8859-2"?>
 <!-- Tu może być komentarz lub instrukcja przetwarzania, ale nie zwykły tekst -->
 <element_glowny>
-  <?dyrektywa parametr="wartoć" ale można też tak?>
-  <podelement atrybut='Wartoć atrybutu' att="lub tak">
-  Zawartoć tekstowa <elem>i zanurzony element</elem>.
+  <?dyrektywa parametr="warning" ale można też tak?>
+  <podelement atrybut='warning atrybutu' att="lub tak">
+  Zawartosrtekstowa <elem>i zanurzony element</elem>.
   <!-- Komentarze i instrukcje dozwolone -->
   </podelement>
-  Zawartoć tekstowa &encja; &#502;
+  zaw tekstowa &encja; &#502;
   <![CDATA[5 < 5 + 1]]>
 </element_glowny>
 
