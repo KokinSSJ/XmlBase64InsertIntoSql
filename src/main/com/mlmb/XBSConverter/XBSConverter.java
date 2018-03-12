@@ -1,4 +1,4 @@
-package com.mlmb.XBSConverter;
+package com.mlmb.xbsconverter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class XBSConverter {
 	
-	
+	// v2
 	private static String pathToXml = "./XMLfolder";
 	private static String pathToSql = "./SQLfolder";
 	
@@ -113,6 +113,7 @@ public class XBSConverter {
 
 	private static void changeBinaryInSqlWhichConsistDecode(FileConverter file) {
 		// dodaj wielkosc pliku
+		// file.getPathToXml().toFile().length();
 		Optional<String> reducedSqlBody = file.getSqlBody().stream().reduce((x, y) -> x + "\n" + y);
 		file.setNewSqlBody(
 				reducedSqlBody.map(docString -> changeBase64InQuery(docString, file)).orElse(null));

@@ -1,4 +1,4 @@
-package com.mlmb.XBSConverter;
+package com.mlmb.xbsconverter;
 
 import java.nio.file.Path;
 import java.util.List;
