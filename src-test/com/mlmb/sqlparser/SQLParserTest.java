@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ SQLParser.class })
@@ -88,14 +89,19 @@ public class SQLParserTest {
 		sqlParser.parse();
 	}
 
-	@Test
+	// added expected only because further code -> its only example of using
+	// private methods!
+	@Test(expected = IllegalArgumentException.class)
 	public void test_privateMethod() throws Exception {
-		SQLParser sqlParser = PowerMockito.spy(new SQLParser("blabla"));
+		SQLParser sqlParser = PowerMockito.spy(new SQLParser("update table  set nameCol = name where id = 1"));
+		// you cannot use mock -> use spy
 		// SQLParser sqlParser = PowerMockito.mock(SQLParser.class);
+		PowerMockito.when(sqlParser, PowerMockito.method(SQLParser.class, "checkStart", SqlQueryType.class))
+				.withArguments(SqlQueryType.UPDATE).thenReturn(false);
 		PowerMockito.when(sqlParser, PowerMockito.method(SQLParser.class, "checkStart", SqlQueryType.class))
 				.withArguments(SqlQueryType.INSERT_INTO).thenReturn(true);
 		sqlParser.parse();
-		Assertions.assertThat(sqlParser.getType()).isEqualTo(SqlQueryType.INSERT_INTO);
+		Assertions.assertThat(sqlParser.getType()).isEqualTo(SqlQueryType.UPDATE);
 
 	}
 
@@ -103,6 +109,8 @@ public class SQLParserTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void test2_privateStaticVariable() throws Exception {
 		SQLParser sqlParser = PowerMockito.spy(new SQLParser("blabla"));
+		// you cannot use mock -> use spy
+		// SQLParser sqlParser = PowerMockito.mock(SQLParser.class);
 		Field field = PowerMockito.field(SQLParser.class, "state");
 		field.set(SQLParser.class, new String("insert into table(column1) values (ble)"));
 		sqlParser.parse();
@@ -111,13 +119,26 @@ public class SQLParserTest {
 	}
 
 	@Test
-	public void test3_privateObjectVariable() throws Exception {
+	public void test3_privateObjectVariable_withField() throws Exception {
 		SQLParser sqlParser = PowerMockito.spy(new SQLParser("blabla"));
+		// you cannot use mock -> use spy
+		// SQLParser sqlParser = PowerMockito.mock(SQLParser.class);
 		Field field = PowerMockito.field(SQLParser.class, "statement");
 		field.set(sqlParser, new String("insert into table(column1) values (ble)"));
 		sqlParser.parse();
 		Assertions.assertThat(sqlParser.getTableName()).isEqualTo("table");
 	
 	 }
+
+	@Test
+	public void test3_privateObjectVariable_withWhitebox() throws Exception {
+		SQLParser sqlParser = PowerMockito.spy(new SQLParser("blabla"));
+		// you cannot use mock -> use spy
+		// SQLParser sqlParser = PowerMockito.mock(SQLParser.class);
+		Whitebox.setInternalState(sqlParser, "statement", "insert into table(column1) values (ble)");
+		sqlParser.parse();
+		Assertions.assertThat(sqlParser.getTableName()).isEqualTo("table");
+
+	}
 
 }
