@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 public class SQLParser {
+	// leave for test purposes
+	private static String state;
 
 	private String statement;
 
@@ -29,23 +31,32 @@ public class SQLParser {
 	public void parse() {
 		findStarter();
 		if (type == SqlQueryType.INSERT_INTO) {
-			String patternStartName = type.getStarter() + "\\s+";
-			String patternEndName = patternStartName + "[a-zA-Z0-9\\_]*";
+			getTableNameFromStatement();
+
+			// check if 2x () -> only with columns names supported
+			// String patternStartName =
+			// "[a-zA-Z0-9_#$@]*\\([a-zA-Z0-9_@#$\\s']*\\)";
+			String patternStartName = "\\([a-zA-Z0-9_@#$\\s'\",]*\\)";
+			// popraw
+			// !
+			// zeby
+			// zwraca³o
+			// tylko
+			// wartosci
+			// albo
+			// chociaz
+			// przedzial
 
 			Matcher matcherStartName = Pattern.compile(patternStartName).matcher(statement);
-			Matcher matcherEndName = Pattern.compile(patternEndName).matcher(statement);
+			while (matcherStartName.find()) {
 
-			if (matcherStartName.find() && matcherEndName.find()) {
-				int startName = matcherStartName.end();
-				int endName = matcherEndName.end();
-				System.out.println(matcherEndName.group());
-				this.tableName = statement.substring(startName, endName);
-				System.out.println("\"" + this.tableName + "\"");
-				System.out.println(statement + " : " + endName);
-				System.out.println("odciecie: " + statement.substring(endName));
-			} else {
-				throw new IllegalArgumentException("Problem during reading table name");
+				// int startName = matcherStartName.end();
+				// statement.substring(startName);
+				// System.out.println(statement.substring(startName));
+				System.out.println(matcherStartName.start() + " " + matcherStartName.end());
+				System.out.println("B:" + matcherStartName.group());
 			}
+			// if() group != 2 -> error -> not supported!
 
 		} else {
 			throw new IllegalArgumentException("SQL query type not supported :\"" + statement + "\"");
@@ -53,13 +64,30 @@ public class SQLParser {
 	}
 
 	private void findStarter() {
+		// tutaj ppowinna byc zaleznosc od calego query zeby sprawdzic
 		setType(Arrays.stream(SqlQueryType.values()).filter(this::checkStart)
 				.findFirst()
-				.orElse(null));
+				.orElseThrow(() -> new IllegalArgumentException("No pattern found -> Unknown query")));
 	}
 
 	private boolean checkStart(SqlQueryType type) {
-		return Pattern.compile(type.getStarter()).matcher(statement).find();
+		return Pattern.compile(type.getWholeQueryPatter()).matcher(statement).find();
+	}
+
+	private void getTableNameFromStatement() {
+		String patternStartName = type.getStarterPattern() + "\\s+";
+		String patternEndName = patternStartName + "[a-zA-Z0-9_#$@]*";
+
+		Matcher matcherStartName = Pattern.compile(patternStartName).matcher(statement);
+		Matcher matcherEndName = Pattern.compile(patternEndName).matcher(statement);
+
+		if (matcherStartName.find() && matcherEndName.find()) {
+			int startName = matcherStartName.end();
+			int endName = matcherEndName.end();
+			this.tableName = statement.substring(startName, endName);
+		} else {
+			throw new IllegalArgumentException("Problem during reading table name");
+		}
 	}
 
 	public Map<String, String> getColumnParameterMap() {
